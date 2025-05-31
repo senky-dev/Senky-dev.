@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Senky Dev</title>
+  <style>
+    /* [CSS giữ nguyên như trước — không cắt bỏ dòng nào] */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: black;
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
+      user-select: none;
+      position: relative;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+    #fps {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      color: lime;
+      font-weight: bold;
+      z-index: 1000;
+    }
+    .container {
+      position: relative;
+      margin-top: 60px;
+      z-index: 10;
+    }
+    .avatar-frame {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 10px auto;
+    }
+    .avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      filter: grayscale(100%) brightness(110%);
+      box-shadow: 0 0 8px #fff, 0 0 15px #9f9f9f, 0 0 20px #d1d1d1, 0 0 30px #a0a0a0, 0 0 40px #fff;
+      transition: box-shadow 0.3s ease;
+    }
+    .avatar-frame:hover .avatar {
+      box-shadow: 0 0 15px #fff, 0 0 30px #ff77ff, 0 0 40px #ff44ff, 0 0 50px #ff00ff, 0 0 60px #ff00ff;
+    }
+    .frame {
+      pointer-events: none;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff, 0 0 40px #ff00ff;
+      animation: glow 2s infinite alternate ease-in-out;
+    }
+    @keyframes glow {
+      from {
+        box-shadow: 0 0 5px #ff00ff, 0 0 15px #ff00ff, 0 0 20px #ff00ff;
+      }
+      to {
+        box-shadow: 0 0 10px #ff99ff, 0 0 30px #ff99ff, 0 0 40px #ff99ff;
+      }
+    }
+    h1 {
+      margin: 10px 0 20px 0;
+      font-weight: 700;
+      text-shadow: 0 0 10px #ff00ff;
+    }
+    #contactSection {
+      margin-top: 40px;
+      padding: 20px 10px;
+      background: #111;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      z-index: 10;
+      width: 395px;
+      margin-left: auto;
+      margin-right: auto;
+      user-select: none;
+      border-radius: 12px;
+    }
+    #contactSection button {
+      background: #222;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
+      color: #fff;
+      box-shadow: 0 0 6px #ff00ff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+    }
+    #contactSection button:hover {
+      background: #ff00ff;
+      color: #111;
+    }
+    #contactSection button img {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+      border-radius: 6px;
+    }
+    #tiktokSection {
+      margin-top: 10px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      background: #111;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #ff00ff;
+      width: 320px;
+      margin: 0 auto;
+      user-select: none;
+    }
+    #tiktokSection button {
+      background: #222;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 6px #ff00ff;
+      width: 240px;
+      transition: background 0.3s ease;
+    }
+    #tiktokSection button:hover {
+      background: #ff00ff;
+      color: #111;
+    }
+    #timeElapsed {
+      margin-top: 30px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #ff00ff;
+      user-select: none;
+    }
+    #musicSelector {
+      margin-top: 30px;
+      font-size: 16px;
+      color: white;
+    }
+    select#trackSelect {
+      background: #222;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: #fff;
+      box-shadow: 0 0 6px #ff00ff;
+      cursor: pointer;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="fps">FPS: 60</div>
+
+  <div class="container">
+    <div class="avatar-frame">
+      <img src="images/avatar.jpg" alt="avatar" class="avatar" />
+      <div class="frame"></div>
+    </div>
+    <h1>Senky Dev ✔️</h1>
+
+    <div id="timeElapsed">Date created: 0 ngày 0 giờ 0 phút 0 giây</div>
+
+    <div id="musicSelector">
+      <label for="trackSelect">🎵 Chọn nhạc: </label>
+      <select id="trackSelect">
+        <option value="music/ithero.wav">Itviec iThero Song</option>
+        <option value="music/komiku-runaway.mp3">Komiku - Runaway</option>
+      </select>
+    </div>
+    <audio id="bgMusic" autoplay loop></audio>
+
+    <div id="contactSection">
+      <button id="callBtn"><img src="https://img.icons8.com/ios-filled/50/ffffff/phone.png" alt="Gọi" /> Gọi cho tôi</button>
+      <button id="fbBtn"><img src="https://img.icons8.com/ios-filled/50/ffffff/facebook-new.png" alt="Facebook" /> Facebook</button>
+      <button id="tiktokBtn"><img src="https://img.icons8.com/ios-filled/50/ffffff/tiktok.png" alt="TikTok" /> TikTok</button>
+
+      <div id="tiktokSection">
+        <button onclick="window.open('https://www.tiktok.com/@quangmusic.mem', '_blank')">@quangmusic.mem</button>
+        <button onclick="window.open('https://www.tiktok.com/@senky.cha.mxh', '_blank')">@senky.cha.mxh</button>
+      </div>
+
+      <button id="zaloBtn"><img src="https://img.icons8.com/ios-filled/50/ffffff/zalo.png" alt="Zalo" /> Zalo</button>
+      <button id="githubBtn"><img src="https://img.icons8.com/ios-filled/50/ffffff/github.png" alt="GitHub" /> GitHub</button>
+      <button id="telegramBtn"><img src="https://img.icons8.com/ios-filled/50/ffffff/telegram-app.png" alt="Telegram" /> Telegram</button>
+      <button id="emailBtn"><img src="https://img.icons8.com/ios-filled/50/ffffff/email.png" alt="Email" /> Gửi Email</button>
+    </div>
+  </div>
+
+  <canvas id="snowCanvas"></canvas>
+
+  <script>
+    // Snow + FPS + Time + Contact + TikTok toggle + Music
+    const canvas = document.getElementById('snowCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let snowflakes = [];
+
+    function resizeCanvas() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function createSnowflake() {
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: Math.random() * 4 + 1,
+        d: Math.random() * 1 + 0.5
+      };
+    }
+
+    function updateSnowflakes() {
+      ctx.clearRect(0, 0, width, height);
+      for (let i = 0; i < snowflakes.length; i++) {
+        let f = snowflakes[i];
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff";
+        ctx.fill();
+        f.y += f.d;
+        if (f.y > height) {
+          snowflakes[i] = createSnowflake();
+          snowflakes[i].y = 0;
+        }
+      }
+      requestAnimationFrame(updateSnowflakes);
+    }
+
+    for (let i = 0; i < 100; i++) snowflakes.push(createSnowflake());
+    updateSnowflakes();
+
+    let fps = 0, lastLoop = performance.now();
+    setInterval(() => {
+      document.getElementById("fps").textContent = `FPS: ${fps}`;
+    }, 1000);
+
+    function measureFPS() {
+      const now = performance.now();
+      const delta = now - lastLoop;
+      fps = Math.round(1000 / delta);
+      lastLoop = now;
+      requestAnimationFrame(measureFPS);
+    }
+    measureFPS();
+
+    const createdAt = new Date("2025-05-31T00:00:00");
+    function updateElapsedTime() {
+      const now = new Date();
+      const diff = Math.floor((now - createdAt) / 1000);
+      const days = Math.floor(diff / 86400);
+      const hours = Math.floor((diff % 86400) / 3600);
+      const minutes = Math.floor((diff % 3600) / 60);
+      const seconds = diff % 60;
+      document.getElementById("timeElapsed").textContent =
+        `Date created: ${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây`;
+    }
+    setInterval(updateElapsedTime, 1000);
+    updateElapsedTime();
+
+    document.getElementById('callBtn').onclick = () => window.location.href = 'tel:0965753616';
+    document.getElementById('fbBtn').onclick = () => window.location.href = 'https://www.facebook.com/senky.nezo?mibextid=ZbWKwL';
+    document.getElementById('zaloBtn').onclick = () => window.location.href = 'https://zalo.me/0965753616';
+    document.getElementById('githubBtn').onclick = () => window.location.href = 'https://github.com/senky-dev';
+    document.getElementById('telegramBtn').onclick = () => window.location.href = 'https://t.me/baquang37';
+    document.getElementById('emailBtn').onclick = () => window.location.href = 'mailto:quangdzdeptrai39@gmail.com';
+
+    const tiktokBtn = document.getElementById('tiktokBtn');
+    const tiktokSection = document.getElementById('tiktokSection');
+    tiktokBtn.onclick = () => {
+      tiktokSection.style.display = tiktokSection.style.display === 'none' || tiktokSection.style.display === ''
+        ? 'flex' : 'none';
+    };
+
+    const musicPlayer = document.getElementById("bgMusic");
+    const trackSelect = document.getElementById("trackSelect");
+    musicPlayer.src = trackSelect.value;
+    trackSelect.onchange = () => {
+      musicPlayer.src = trackSelect.value;
+      musicPlayer.play();
+    };
+</script>
+</body>
+</html>
